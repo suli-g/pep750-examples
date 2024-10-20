@@ -64,13 +64,10 @@ class Template:
         return Template(*self.args[:-1], self.args[-1] + other.args[0], *other.args[1:])
 
     def __radd__(self, other: object) -> Template:
-        assert isinstance(self.args[0], str)
-        if isinstance(other, str):
-            return Template(other + self.args[0], *self.args[1:])
-        if not isinstance(other, Template):
+        if not isinstance(other, str):
             return NotImplemented
-        assert isinstance(other.args[-1], str)
-        return Template(*other.args[:-1], other.args[-1] + self.args[0], *self.args[1:])
+        assert isinstance(self.args[0], str)
+        return Template(other + self.args[0], *self.args[1:])
 
 
 def t(*args: str | OldVersionOfInterpolation) -> Template:
