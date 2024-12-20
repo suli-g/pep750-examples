@@ -1,6 +1,9 @@
 """Examples for PEP 750. See README.md for details."""
 
+import typing as t
 from html.parser import HTMLParser
+
+from templatelib import Interpolation, Template
 
 #
 # Known bugs/divergences between cpython/tstrings and the current PEP 750 spec
@@ -86,3 +89,30 @@ class _DebugParser(HTMLParser):
         response = super().parse_starttag(i)
         print(f"parse_starttag: {i} -> {response}")
         return response
+
+
+class InterpolationProto(t.Protocol):
+    """
+    This exists only to get my type checking tools, which do not currently
+    know about templatelib, to understand the structure of an Interpolation
+    when surfaced by pairs(), below.
+    """
+
+    value: object
+    expr: str
+    conv: t.Literal["a", "r", "s"] | None
+    format_spec: str
+
+
+def pairs(template: Template) -> t.Iterator[tuple[InterpolationProto | None, str]]:
+    """
+    Yield pairs of interpolations and strings from a template.
+
+    This allows us to experiment with the structure of a template;
+    see the discussion here:
+
+    https://discuss.python.org/t/pep750-template-strings-new-updates/71594/65
+    """
+    yield None, template.args[0]
+    for i, s in zip(template.args[1::2], template.args[2::2]):
+        yield i, s
